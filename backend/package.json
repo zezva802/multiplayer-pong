@@ -6,7 +6,8 @@
     "test": "mocha -r ts-node/register test/**/*.test.ts",
     "test:watch": "mocha -r ts-node/register test/**/*.test.ts --watch",
     "dev": "nodemon --exec ts-node src/server.ts",
-    "build": "tsc"
+    "build": "tsc",
+    "start": "node dist/server.js"
   },
   "keywords": [],
   "author": "",

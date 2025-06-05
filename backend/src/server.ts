@@ -1,48 +1,49 @@
 // backend/src/server.ts
 import express from "express";
 import cors from "cors";
-import { createServer } from "http"; // Use Node's http server
-import { Server } from "socket.io"; // Import Socket.IO Server
-// import gameRoutes from "./routes/gameRoutes"; 
-import { SocketPongManager } from "./socket/SocketPongManager"; // Import the manager
+import { createServer } from "http";
+import { Server } from "socket.io";
+import { SocketPongManager } from "./socket/SocketPongManager";
 
 const app = express();
-const server = createServer(app); // Wrap Express app with HTTP server
-const io = new Server(server, { // Create Socket.IO server instance
+const server = createServer(app);
+
+// --- MODIFICATION START ---
+// Allow connections from the frontend's public URL, read from an environment variable
+// Fallback to localhost for local development
+const allowedOrigin = process.env.FRONTEND_URL || "http://localhost:5173";
+
+const io = new Server(server, {
   cors: {
-      origin: "http://localhost:5173", // Allow requests from your frontend's development server
-      methods: ["GET", "POST"] // Allowed HTTP methods for CORS
+      // origin can be a string (one URL), an array of strings (multiple URLs),
+      // or a function for more complex logic.
+      // For a simple case with one frontend, a string or array is fine.
+      // If using an array: origin: [allowedOrigin, "http://localhost:5173"]
+      origin: allowedOrigin, // Use the environment variable value
+      methods: ["GET", "POST"]
   },
   // Add other socket.io options if needed
 });
+// --- MODIFICATION END ---
 
-// Instantiate the Socket Game Manager, passing the Socket.IO server instance
 const socketPongManager = new SocketPongManager(io);
-
 
 const PORT = process.env.PORT || 3001;
 
 // Middleware
 app.use(express.json());
-app.use(cors()); // Use CORS for the HTTP server too
-
-
-
+app.use(cors()); // Use CORS for the HTTP server too (less critical for websockets, but good practice)
 
 app.get("/", (req, res) => {
   res.json({ message: "Multiplayer Pong Server is running!" });
 });
 
-// --- Socket.io Connection Handling ---
 io.on("connection", (socket) => {
-  // Pass the new socket connection to the manager
   socketPongManager.handleConnection(socket);
 });
-// --- End Socket.io Connection Handling ---
 
-
-// Start the HTTP server (which Socket.IO is attached to)
 server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
   console.log(`Socket.IO server running on port ${PORT}`);
+  console.log(`Allowed frontend origin for sockets: ${allowedOrigin}`); // Log this to verify
 });
