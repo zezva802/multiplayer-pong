@@ -1,11 +1,11 @@
 
 import React, { useEffect, useState } from 'react';
-import socket from './socket'; // Import the socket client instance
-import type { GameState} from '../../backend/src/types'; // Import backend types
+import socket from './socket'; 
+import type { GameState} from '../../backend/src/types'; 
 import type { MatchFoundPayload, GameEndPayload, GameErrorPayload } from '../../backend/src/socket/events';
-import { ServerEvents, ClientEvents } from '../../backend/src/socket/events'; // Import event names
-import GameArea from './components/GameArea'; // We'll create this component next
-import './App.css'; // Basic styling
+import { ServerEvents, ClientEvents } from '../../backend/src/socket/events'; 
+import GameArea from './components/GameArea'; 
+import './App.css'; 
 
 function App() {
   const [isConnected, setIsConnected] = useState(socket.connected);
@@ -128,7 +128,7 @@ function App() {
     }
   };
 
-    // We won't emit paddle moves directly from App, but from GameArea
+
 
 
   return (
