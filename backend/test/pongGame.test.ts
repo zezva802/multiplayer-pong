@@ -4,7 +4,7 @@ import { PongGameLogic } from '../src/models/PongGameLogic';
 import {
     BOARD_WIDTH, BOARD_HEIGHT, PADDLE_WIDTH, PADDLE_HEIGHT,
     BALL_SIZE, PADDLE_LEFT_X, // Import the left paddle X position constant
-    getInitialGameState, GameState, PADDLE_RIGHT_X, SPEED_INCREASE_FACTOR // Import types and helpers
+    getInitialGameState, GameState, PADDLE_RIGHT_X, SPEED_INCREASE_FACTOR, PADDLE_SPEED // Import types and helpers
 } from '../src/types';
 
 describe('PongGameLogic', () => {
@@ -234,6 +234,228 @@ describe('PongGameLogic', () => {
         // Expect ball position to be to the left of the paddle (pushed out)
         expect(currentState.ball.x + ballRadius).to.be.at.most(PADDLE_RIGHT_X + 0.001); // Ball's right edge should be <= paddle's left edge
     });
+
+    it('should score a point for the left player when ball goes past right paddle', () => {
+    const deltaTime = 1 / 60;
+    const ballRadius = BALL_SIZE / 2;
+
+    // Place ball just beyond right edge
+    const initialX = BOARD_WIDTH + ballRadius + 1;
+    const initialY = BOARD_HEIGHT / 2;
+    const initialVx = 100;
+    const initialVy = 0;
+
+    game['state'].ball = { x: initialX, y: initialY, vx: initialVx, vy: initialVy };
+    game['state'].score.left = 0;
+    game['state'].score.right = 0;
+
+    // Single update should be enough
+    game.update(deltaTime);
+
+    const currentState = game.getGameState();
+
+    expect(currentState.score.left).to.equal(1);
+    expect(currentState.score.right).to.equal(0);
+    expect(currentState.status).to.equal('playing');
+    expect(currentState.ball.x).to.be.closeTo(getInitialGameState().ball.x, 0.001);
+});
+
+
+it('should score a point for the right player when ball goes past left paddle', () => {
+    const deltaTime = 1 / 60;
+    const ballRadius = BALL_SIZE / 2;
+
+    // Place ball just beyond the left edge
+    const initialX = -ballRadius - 1;
+    const initialY = BOARD_HEIGHT / 2;
+    const initialVx = -100; // Moving left
+    const initialVy = 0;
+
+    game['state'].ball = { x: initialX, y: initialY, vx: initialVx, vy: initialVy };
+    game['state'].score.left = 0;
+    game['state'].score.right = 0;
+
+    // Single update should be enough to register score
+    game.update(deltaTime);
+
+    const currentState = game.getGameState();
+
+    // Expect right player to score
+    expect(currentState.score.right).to.equal(1);
+    expect(currentState.score.left).to.equal(0);
+
+    // Expect ball reset to initial state
+    const initialGameState = getInitialGameState();
+    expect(currentState.ball.x).to.be.closeTo(initialGameState.ball.x, 0.001);
+    expect(currentState.ball.y).to.be.closeTo(initialGameState.ball.y, 0.001);
+    expect(currentState.ball.vx).to.not.equal(0);
+    expect(currentState.ball.vy).to.not.equal(0);
+
+    // Expect paddle positions to be reset
+    expect(currentState.paddles.left.y).to.be.closeTo(initialGameState.paddles.left.y, 0.001);
+    expect(currentState.paddles.right.y).to.be.closeTo(initialGameState.paddles.right.y, 0.001);
+
+    // Expect game status to be 'playing'
+    expect(currentState.status).to.equal('playing');
+});
+
+
+it('should move the left paddle up', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT / 2; // Start paddle in the middle
+        game['state'].paddles.left.y = initialY; // Setup initial position
+
+        const distance = PADDLE_SPEED * deltaTime; // Calculate expected movement distance
+
+        game.movePaddle('left', 'up', deltaTime); // Call the method we are testing
+
+        const currentState = game.getGameState();
+        const expectedY = initialY - distance;
+
+        // Expect paddle Y position to decrease
+        expect(currentState.paddles.left.y).to.be.closeTo(expectedY, 0.001);
+    });
+
+    it('should move the left paddle down', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT / 2; // Start paddle in the middle
+        game['state'].paddles.left.y = initialY; // Setup initial position
+
+        const distance = PADDLE_SPEED * deltaTime;
+
+        game.movePaddle('left', 'down', deltaTime);
+
+        const currentState = game.getGameState();
+        const expectedY = initialY + distance;
+
+        // Expect paddle Y position to increase
+        expect(currentState.paddles.left.y).to.be.closeTo(expectedY, 0.001);
+    });
+
+    it('should move the right paddle up', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT / 2; // Start paddle in the middle
+        game['state'].paddles.right.y = initialY; // Setup initial position
+
+        const distance = PADDLE_SPEED * deltaTime;
+
+        game.movePaddle('right', 'up', deltaTime);
+
+        const currentState = game.getGameState();
+        const expectedY = initialY - distance;
+
+        // Expect paddle Y position to decrease
+        expect(currentState.paddles.right.y).to.be.closeTo(expectedY, 0.001);
+    });
+
+    it('should move the right paddle down', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT / 2; // Start paddle in the middle
+        game['state'].paddles.right.y = initialY; // Setup initial position
+
+        const distance = PADDLE_SPEED * deltaTime;
+
+        game.movePaddle('right', 'down', deltaTime);
+
+        const currentState = game.getGameState();
+        const expectedY = initialY + distance;
+
+        // Expect paddle Y position to increase
+        expect(currentState.paddles.right.y).to.be.closeTo(expectedY, 0.001);
+    });
+
+    it('should prevent left paddle from moving off top edge', () => {
+        const deltaTime = 1 / 60;
+        const initialY = 5; // Start paddle near top edge
+        game['state'].paddles.left.y = initialY;
+
+        // Move paddle up multiple times to try and force it past the edge
+        for (let i = 0; i < 10; i++) {
+             game.movePaddle('left', 'up', deltaTime);
+        }
+
+        const currentState = game.getGameState();
+
+        // Expect paddle Y position to be at 0 (top edge)
+        expect(currentState.paddles.left.y).to.be.closeTo(0, 0.001);
+    });
+
+    it('should prevent left paddle from moving off bottom edge', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT - PADDLE_HEIGHT - 5; // Start paddle near bottom edge
+        game['state'].paddles.left.y = initialY;
+
+        // Move paddle down multiple times
+        for (let i = 0; i < 10; i++) {
+             game.movePaddle('left', 'down', deltaTime);
+        }
+
+        const currentState = game.getGameState();
+
+        // Expect paddle Y position to be at BOARD_HEIGHT - PADDLE_HEIGHT (bottom edge)
+        expect(currentState.paddles.left.y).to.be.closeTo(BOARD_HEIGHT - PADDLE_HEIGHT, 0.001);
+    });
+
+     it('should prevent right paddle from moving off top edge', () => {
+        const deltaTime = 1 / 60;
+        const initialY = 5; // Start paddle near top edge
+        game['state'].paddles.right.y = initialY;
+
+        // Move paddle up multiple times
+        for (let i = 0; i < 10; i++) {
+             game.movePaddle('right', 'up', deltaTime);
+        }
+
+        const currentState = game.getGameState();
+
+        // Expect paddle Y position to be at 0 (top edge)
+        expect(currentState.paddles.right.y).to.be.closeTo(0, 0.001);
+    });
+
+    it('should prevent right paddle from moving off bottom edge', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT - PADDLE_HEIGHT - 5; // Start paddle near bottom edge
+        game['state'].paddles.right.y = initialY;
+
+        // Move paddle down multiple times
+        for (let i = 0; i < 10; i++) {
+             game.movePaddle('right', 'down', deltaTime);
+        }
+
+        const currentState = game.getGameState();
+
+        // Expect paddle Y position to be at BOARD_HEIGHT - PADDLE_HEIGHT (bottom edge)
+        expect(currentState.paddles.right.y).to.be.closeTo(BOARD_HEIGHT - PADDLE_HEIGHT, 0.001);
+    });
+
+
+     it('should do nothing if direction is idle', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT / 2;
+        game['state'].paddles.left.y = initialY;
+        game['state'].paddles.right.y = initialY;
+
+        game.movePaddle('left', 'idle', deltaTime);
+        game.movePaddle('right', 'idle', deltaTime);
+
+        const currentState = game.getGameState();
+        expect(currentState.paddles.left.y).to.be.closeTo(initialY, 0.001);
+        expect(currentState.paddles.right.y).to.be.closeTo(initialY, 0.001);
+     });
+
+     it('should not move paddle if game is not playing', () => {
+        const deltaTime = 1 / 60;
+        const initialY = BOARD_HEIGHT / 2;
+        game = new PongGameLogic(); // Reset game, status will be 'waiting'
+        game['state'].paddles.left.y = initialY;
+
+        game.movePaddle('left', 'up', deltaTime); // Try to move up
+
+        const currentState = game.getGameState();
+        // Expect paddle position to remain unchanged
+        expect(currentState.paddles.left.y).to.be.closeTo(initialY, 0.001);
+     });
+
 
     // ... other tests ...
 });

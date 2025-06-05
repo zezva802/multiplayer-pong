@@ -64,7 +64,8 @@ export class PongGameLogic {
         }
     }
 
-     movePaddle(side: PlayerSide, direction: PaddleDirection, deltaTime: number): void {
+    movePaddle(side: PlayerSide, direction: PaddleDirection, deltaTime: number): void {
+        // Only allow movement if game is playing
         if (this.state.status !== 'playing') {
             return;
         }
@@ -74,18 +75,19 @@ export class PongGameLogic {
 
         if (direction === 'up') {
             paddle.y -= distance;
-            // Prevent moving off top edge
+            // Prevent moving off top edge (y cannot be less than 0)
             if (paddle.y < 0) {
                 paddle.y = 0;
             }
         } else if (direction === 'down') {
-            paddle.y += distance;
-            // Prevent moving off bottom edge
-            if (paddle.y + paddle.height > BOARD_HEIGHT) {
-                paddle.y = BOARD_HEIGHT - paddle.height;
-            }
+             paddle.y += distance;
+             // Prevent moving off bottom edge (paddle.y + paddle.height cannot be greater than BOARD_HEIGHT)
+             if (paddle.y + paddle.height > BOARD_HEIGHT) {
+                 paddle.y = BOARD_HEIGHT - paddle.height;
+             }
         }
-        // 'idle' means no movement, do nothing
+        // 'idle' direction means the paddle velocity is zero for this frame, so it doesn't move.
+        // No code needed for 'idle' if we're just applying movement distance here.
     }
 
 
@@ -171,20 +173,23 @@ export class PongGameLogic {
          const ball = this.state.ball;
          const ballRadius = BALL_SIZE / 2;
 
-         // Ball goes past Right paddle (left scores)
+         // Ball goes past Right edge (left scores)
+         // Check if the ball's left edge is past the right edge of the board
          if (ball.x - ballRadius > BOARD_WIDTH) {
              this.state.score.left++;
-             this.state.status = 'scored'; // Or handle reset immediately
-             this.resetBall();
+             this.resetBall(); // Reset state for the next round
              this.checkGameEnd(); // Check if game ended due to scoring
+             return; // Stop further checks in this update
          }
 
-         // Ball goes past Left paddle (right scores)
+         // Ball goes past Left edge (right scores)
+         // Check if the ball's right edge is past the left edge of the board (0)
          if (ball.x + ballRadius < 0) {
-             this.state.score.right++;
-             this.state.status = 'scored'; // Or handle reset immediately
-             this.resetBall();
-             this.checkGameEnd(); // Check if game ended due to scoring
+              
+              this.state.score.right++;
+              this.resetBall();
+              this.checkGameEnd();
+              return;
          }
     }
 
@@ -192,10 +197,10 @@ export class PongGameLogic {
     // Note: This just resets position/velocity. Server game loop needs to handle state transition/pause.
     private resetBall(): void {
          this.state.ball = getInitialBallState(); // Reset ball position and velocity
-         this.state.paddles.left = getInitialPaddleState('left'); // Optional: Reset paddles too
-         this.state.paddles.right = getInitialPaddleState('right'); // Optional: Reset paddles too
+         this.state.paddles.left = getInitialPaddleState('left'); // Reset paddles too
+         this.state.paddles.right = getInitialPaddleState('right'); // Reset paddles too
          this.state.status = 'playing'; // Immediately resume after reset in this simple model
-         // A real game loop might transition from 'scored' -> 'playing' after a delay
+         // In a real game, you might set status to 'scored', wait a bit, then transition to 'playing'
     }
 
 
