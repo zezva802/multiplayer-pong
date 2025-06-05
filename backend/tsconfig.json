@@ -6,7 +6,8 @@
     "rootDir": "./",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    
   },
   "include": ["src/**/*", "test/**/*"],
   "exclude": ["node_modules", "dist"]

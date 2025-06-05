@@ -1,0 +1,34 @@
+/* frontend/src/App.css */
+.App {
+  font-family: sans-serif;
+  text-align: center;
+  padding: 20px;
+  background-color: #282c34;
+  color: white;
+  min-height: 100vh;
+}
+
+h1 {
+  color: #61dafb;
+}
+
+button {
+  padding: 10px 20px;
+  font-size: 16px;
+  margin: 10px;
+  cursor: pointer;
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.game-ended-message {
+    font-size: 1.2em;
+    font-weight: bold;
+    color: yellowgreen;
+    margin-top: 20px;
+}
+
+/* Add styling for the GameArea and its elements later */
