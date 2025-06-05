@@ -2,7 +2,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { GameState, PlayerSide, PaddleDirection } from '../../../backend/src/types'; // Import types
 import socket from '../socket'; // Import socket
-import { ClientEvents, PaddleMovePayload } from '../../../backend/src/socket/events'; // Import events
+import { ClientEvents} from '../../../backend/src/socket/events'; // Import events
 
 interface GameAreaProps {
   gameId: string;

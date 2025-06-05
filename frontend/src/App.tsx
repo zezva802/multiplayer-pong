@@ -1,5 +1,5 @@
 
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import socket from './socket'; 
 import type { GameState} from '../../backend/src/types'; 
 import type { MatchFoundPayload, GameEndPayload, GameErrorPayload } from '../../backend/src/socket/events';

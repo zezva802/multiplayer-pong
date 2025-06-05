@@ -31,7 +31,7 @@ export interface GameState {
   score: ScoreState;
   status: GameStatus;
   winner: PlayerSide | null; // Used when status is 'finished'
-  // Add board dimensions for client rendering reference
+  
   boardWidth: number;
   boardHeight: number;
 }
@@ -55,7 +55,7 @@ export const getInitialBallState = (): BallState => ({
     vy: INITIAL_BALL_SPEED * (Math.random() > 0.5 ? 1 : -1) * 0.5, // Slower initial vertical speed
 });
 
-export const getInitialPaddleState = (side: PlayerSide): PaddleState => ({
+export const getInitialPaddleState = (): PaddleState => ({
     y: BOARD_HEIGHT / 2 - PADDLE_HEIGHT / 2,
     width: PADDLE_WIDTH,
     height: PADDLE_HEIGHT,
@@ -65,8 +65,8 @@ export const getInitialPaddleState = (side: PlayerSide): PaddleState => ({
 export const getInitialGameState = (): GameState => ({
     ball: getInitialBallState(),
     paddles: {
-        left: {...getInitialPaddleState('left')}, // Use spread to create new objects
-        right: {...getInitialPaddleState('right')},
+        left: {...getInitialPaddleState()}, // Use spread to create new objects
+        right: {...getInitialPaddleState()},
     },
     score: { left: 0, right: 0 },
     status: 'waiting', // Or 'playing' if we start immediately
