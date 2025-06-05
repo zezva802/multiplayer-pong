@@ -6,15 +6,11 @@ import {
     getInitialGameState, getInitialBallState, getInitialPaddleState, SPEED_INCREASE_FACTOR
 } from '../types';
 
-// Add a constant for how much to increase speed after a hit
- // Increase speed by 5% on each hit
+
 
 export class PongGameLogic {
     private state: GameState;
-    // We might need a way to track if the ball has just hit a paddle to avoid
-    // double-counting collisions in a single frame if delta time is large.
-    // For simplicity initially, we might skip this, but keep it in mind for bugs.
-    // private lastHitPaddle: PlayerSide | null = null; // Could add this later
+    
 
     constructor() {
         this.state = getInitialGameState();
@@ -60,7 +56,7 @@ export class PongGameLogic {
         // @ts-ignore
         if (this.state.status === 'scored') {
              // This state could be used to trigger a reset timer on the server
-             // For now, let's assume an external mechanism calls resetBall() after a delay
+             
         }
     }
 
@@ -87,7 +83,7 @@ export class PongGameLogic {
              }
         }
         // 'idle' direction means the paddle velocity is zero for this frame, so it doesn't move.
-        // No code needed for 'idle' if we're just applying movement distance here.
+        
     }
 
 
@@ -120,7 +116,7 @@ export class PongGameLogic {
         const ballTop = ball.y - ballRadius;
         const ballBottom = ball.y + ballRadius;
         const paddleX = side === 'left' ? PADDLE_LEFT_X : PADDLE_RIGHT_X;
-        const paddleHeight = PADDLE_HEIGHT; // Already a constant, but good to use
+        const paddleHeight = PADDLE_HEIGHT; 
 
         // Determine if collision is possible based on ball direction and X position
         const canCollide =
@@ -159,13 +155,9 @@ export class PongGameLogic {
                  if (ball.vx > 0) ball.vx *= -1;
             }
 
-            // Optional: Add a cooldown/flag if needed to prevent multi-collision per frame
-            // this.lastHitPaddle = side;
+            
         }
-         // Optional: If using a cooldown/flag, reset it if the ball is far from the paddle
-         // if (this.lastHitPaddle === side && (side === 'left' && ballLeft > paddleX + PADDLE_WIDTH + BALL_SIZE) || (side === 'right' && ballRight < paddleX - BALL_SIZE)) {
-         //     this.lastHitPaddle = null;
-         // }
+         
     }
 
     // Method to check for scoring (ball goes past paddles)
@@ -194,11 +186,11 @@ export class PongGameLogic {
     }
 
     // Method to reset ball after a score
-    // Note: This just resets position/velocity. Server game loop needs to handle state transition/pause.
+  
     private resetBall(): void {
          this.state.ball = getInitialBallState(); // Reset ball position and velocity
-         this.state.paddles.left = getInitialPaddleState('left'); // Reset paddles too
-         this.state.paddles.right = getInitialPaddleState('right'); // Reset paddles too
+         this.state.paddles.left = getInitialPaddleState(); // Reset paddles too
+         this.state.paddles.right = getInitialPaddleState(); // Reset paddles too
          this.state.status = 'playing'; // Immediately resume after reset in this simple model
          // In a real game, you might set status to 'scored', wait a bit, then transition to 'playing'
     }
@@ -219,7 +211,7 @@ export class PongGameLogic {
     startGame(): void {
         if (this.state.status === 'waiting') {
             this.state.status = 'playing';
-            // Initial ball velocity is set in getInitialBallState, no need to do it here again
+            
         }
     }
 }
