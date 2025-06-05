@@ -45,6 +45,7 @@ export const BALL_SIZE = 10; // Ball is a square for simplicity
 export const INITIAL_BALL_SPEED = 200; // Pixels per second
 export const PADDLE_SPEED = 300; // Pixels per second
 export const MAX_SCORE = 5; // Game ends when someone reaches this score
+export const SPEED_INCREASE_FACTOR = 1.05;
 
 // Initial state values (can be used in constructor and reset)
 export const getInitialBallState = (): BallState => ({
@@ -73,3 +74,6 @@ export const getInitialGameState = (): GameState => ({
     boardWidth: BOARD_WIDTH,
     boardHeight: BOARD_HEIGHT,
 });
+// Paddle fixed X positions
+export const PADDLE_LEFT_X = 30; // distance from the left edge
+export const PADDLE_RIGHT_X = BOARD_WIDTH - 30 - PADDLE_WIDTH; // distance from right edge minus paddle width
