@@ -1,9 +1,11 @@
-/* frontend/src/App.css */
+
 .App {
   font-family: sans-serif;
   text-align: center;
   padding: 20px;
-  background-color: #282c34;
+  background:url("images.jfif");
+  background-repeat: no-repeat;
+  background-size: cover;
   color: white;
   min-height: 100vh;
 }
@@ -31,4 +33,3 @@ button:disabled {
     margin-top: 20px;
 }
 
-/* Add styling for the GameArea and its elements later */
